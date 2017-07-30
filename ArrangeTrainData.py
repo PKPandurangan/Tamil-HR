@@ -9,8 +9,8 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 size = 100, 100
 
 # Add Test Data folder
-testdatapath = dir_path + "/old_test_data"
-newtestdatapath = dir_path + "/new_test_data"
+testdatapath = dir_path + "/old_train_data"
+newtestdatapath = dir_path + "/new_train_data"
 
 def get_filepaths(directory):
     """
@@ -21,6 +21,8 @@ def get_filepaths(directory):
     """
     file_paths = []  # List which will store all of the full filepaths.
 
+    counter = 1
+
     # Walk the tree.
     for root, directories, files in os.walk(directory):
         for filename in files:
@@ -28,16 +30,23 @@ def get_filepaths(directory):
             filepath = os.path.join(root, filename)
             file_paths.append(filepath)  # Add it to the list.
 
-            #New File path to save data
+            # New File path to save data
             finalfilepath = os.path.join(newtestdatapath, filename)
-            outfile = os.path.splitext(finalfilepath)[0] + ".png"
+            outfile = os.path.splitext(finalfilepath)[0] + ".JPEG"
 
-            #remove the file if it exists already
+            # remove the file if it exists already
             if os.path.exists(outfile):
                 os.remove(outfile)
 
             if filepath != outfile:
                 try:
+                    # Get file Name
+                    fname = os.path.splitext(filename)[0]
+                    filetype = fname.split('t', 1)
+
+                    finalname = str(counter) + '-' + filetype[0] + '.JPEG'
+                    finalpath = os.path.join(newtestdatapath, finalname)
+
                     im = Image.open(filepath)
                     im.thumbnail(size, Image.ANTIALIAS)
                     offset_x = (size[0] - im.size[0]) / 2
@@ -55,17 +64,18 @@ def get_filepaths(directory):
                     inverted_image = PIL.ImageOps.invert(newimg)
                     # imagem = cv2.bitwise_not(convertimage)
                     # bw = gray.point(lambda x: 0 if x < 128 else 255, '1')
-                    inverted_image.save(outfile, "png")
-                    finalImage = imread(outfile)
+                    inverted_image.save(finalpath, "JPEG")
+                    finalImage = imread(finalpath)
                     imgdata = finalImage.flatten()
                     # finallist.append(imgdata)
+
+                    counter = counter+1
 
                 except IOError:
                     print
                     "cannot create thumbnail for '%s'" % filepath
 
     return file_paths  # Self-explanatory.
-
 
 # Run the above function and store its results in a variable.
 full_file_paths = get_filepaths(testdatapath)
